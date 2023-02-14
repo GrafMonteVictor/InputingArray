@@ -3,68 +3,77 @@ package org.example;
 import java.util.*;
 
 public class ProcessingArray {
-    public static void processingArray(String[] inputAr) {
-        List<String> copyInput = Arrays.asList(inputAr);
+    public static String processingArray(String[] inputAr) {
+        List<String> copyInput = new ArrayList<>(Arrays.asList(inputAr));
 
         Map<String,ArrayList<Integer>> data = new HashMap<>();
 
-        for (int i = 0; i < copyInput.size(); i++) {
+        for (int i = 0; i < copyInput.size() - 1; i++) {
+            if (copyInput.get(i) == null) {
+                continue;
+            }
+            String currentWord = copyInput.get(i); //будем сравнивать в этом слове буквы из wordFromList
             for (int j = i + 1; j < inputAr.length; j++) {
-                if(copyInput.size() == inputAr.length) {
-//                    System.out.println("Длины совпадают у слов с индексами:");
-//                    System.out.println("(индекс по листу) i - " + i);
-//                    System.out.println("(индекс по массиву) j - " + j);
+                String comparingWord = inputAr[j]; //будем удалять буквы из этого слова
+                if(currentWord.length() == comparingWord.length()) {
 
                     //проходимся по слову
-                    String wordFromList = copyInput.get(i); //будем удалять буквы из этого слова
-                    String wordFromArray = inputAr[j]; //будем сравнивать в этом слове буквы из wordFromList
-                    boolean matchingSymbol = false;
+                    boolean isMatch = false;
                     //проходимся по символам из слова из List
-                    for (int k = 0; k < wordFromArray.length(); k++) {
-                        char symbol = wordFromArray.charAt(k);
-                        if (wordFromList.contains(String.valueOf(symbol))) {
+                    for (int k = 0; k < currentWord.length(); k++) {
+                        char symbol = currentWord.charAt(k);
+                        if (comparingWord.contains(String.valueOf(symbol))) {
                             //удаляем символ
-                            matchingSymbol = true;
-                            int index = wordFromList.indexOf(symbol);
-                            wordFromList = wordFromList.substring(0, index) +
-                                    wordFromList.substring(index + 1, wordFromList.length());
+                            isMatch = true;
+                            int index = comparingWord.indexOf(symbol);
+                            comparingWord = comparingWord.substring(0, index) +
+                                    comparingWord.substring(index + 1, comparingWord.length());
                         }
                         else {
-                            matchingSymbol = false;
+                            isMatch = false;
                             break;
                         }
                     }
 
-                    if (matchingSymbol == true) {
-                        if (!data.containsKey(wordFromArray)) {
+                    if (isMatch == true) {
+
+                        if (!data.containsKey(currentWord)) {
                             //добавляем новове слово с индексами
-                            data.put(wordFromArray, new ArrayList<>(Arrays.asList(i, j)));
+                            data.put(currentWord, new ArrayList<>(Arrays.asList(i, j)));
                         }
                         else {
                             //добавляем индекс к существующему слову
-                            for (Map.Entry<String, ArrayList<Integer>> words: data.entrySet()) {
-                                if (words.getKey().equals(wordFromArray)) {
-                                    words.getValue().add(j);
-                                }
-                            }
+                            data.get(currentWord).add(j);
                         }
+                        copyInput.set(j, null);
                     }
                 }
+
             }
         }
 
+        StringBuilder indexes = new StringBuilder();
         for (Map.Entry<String, ArrayList<Integer>> words: data.entrySet()) {
-            StringBuilder indexes = new StringBuilder();
+            indexes.append(" ");
+            indexes.append(words.getKey());
+            indexes.append(" =");
             for (int i = 0; i < words.getValue().size(); i++) {
-                if (i != words.getValue().size()) {
-                    indexes.append(i);
-                    indexes.append(", ");
+                if (i != words.getValue().size() - 1) {
+                    indexes.append(" ");
+                    indexes.append(words.getValue().get(i));
+                    indexes.append(",");
                 }
                 else {
-                    indexes.append(i);
+                    indexes.append(" ");
+                    indexes.append(words.getValue().get(i));
                 }
             }
-            System.out.print(words.getKey() + " " + indexes);
         }
+        String output = indexes.toString();
+        if(output == null || output.equals("")) {
+            return "";
+        }
+        output = output.substring(1, output.length());
+        return output;
     }
 }
